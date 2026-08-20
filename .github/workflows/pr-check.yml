@@ -13,6 +13,9 @@ jobs:
   lint:
     uses: guilhermelinosp/ci-templates/.github/workflows/shellcheck.yml@main
 
+  commit-lint:
+    uses: guilhermelinosp/ci-templates/.github/workflows/commit-lint.yml@main
+
   merge-check:
     uses: guilhermelinosp/ci-templates/.github/workflows/merge-check.yml@main
 
@@ -21,3 +24,14 @@ jobs:
 
   labeler:
     uses: guilhermelinosp/ci-templates/.github/workflows/labeler.yml@main
+
+  gosec:
+    uses: guilhermelinosp/ci-templates/.github/workflows/gosec.yml@main
+    with:
+      dir: ./...
+
+  go-test:
+    uses: guilhermelinosp/ci-templates/.github/workflows/go-test.yml@main
+
+  golangci:
+    uses: guilhermelinosp/ci-templates/.github/workflows/golangci.yml@main
