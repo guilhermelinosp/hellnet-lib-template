@@ -19,6 +19,22 @@ pre-commit:
         else
           echo "golangci-lint not installed; skipping"
         fi
+    yaml-lint:
+      glob: "*.{yaml,yml}"
+      run: |
+        if command -v yq >/dev/null 2>&1; then
+          yq eval '.' {staged_files} >/dev/null
+        else
+          echo "yq not installed; skipping"
+        fi
+    json-lint:
+      glob: "*.json"
+      run: |
+        if command -v jq >/dev/null 2>&1; then
+          jq empty {staged_files} >/dev/null
+        else
+          echo "jq not installed; skipping"
+        fi
     secrets-scan:
       glob: "*.{yaml,yml,go,json,sh}"
       run: |
