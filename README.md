@@ -10,8 +10,10 @@ Click **"Use this template"** to scaffold a new Go library in seconds.
 - **Go module** seeded with a tiny, tested example API (`Greet`) — delete it and start coding.
 - **`.golangci.yml`** — curated linter config (errcheck, staticcheck, gosec, revive, …).
 - **`Makefile`** — `fmt`, `vet`, `lint`, `test`, `test-race`, `cover`, `build`.
+- **`.editorconfig`** — editor formatting rules (incl. YAML indentation).
 - **Lefthook** pre-commit hooks (`.lefthook.yml`): `go fmt`, `go vet`, `go mod tidy`,
-  `golangci-lint`, `yamllint`, `gitleaks`. `-race` tests run on pre-push.
+  `golangci-lint`, `gitleaks`. `-race` tests run on pre-push. YAML formatting is enforced
+  via `.editorconfig` (no separate yamllint config).
 - **CI** (`.github/workflows`):
   - `pipeline.yml` (main): semantic release + Go build via [ci-templates](https://github.com/guilhermelinosp/ci-templates).
   - `pr-check.yml` (PR): Go vet + `go test -race` + `golangci-lint`, plus shellcheck, gitleaks, merge-check, labeler.
