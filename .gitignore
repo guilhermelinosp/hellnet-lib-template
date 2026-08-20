@@ -31,3 +31,11 @@ vendor/
 
 # Logs
 *.log
+
+# Go
+/coverage.out
+*.out
+*.test
+go.work
+go.work.sum
+/.cache/
