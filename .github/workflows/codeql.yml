@@ -12,5 +12,3 @@ permissions:
 jobs:
   codeql:
     uses: guilhermelinosp/ci-templates/.github/workflows/codeql.yml@main
-    with:
-      languages: '[{"language":"actions","build-mode":"none"}]'
