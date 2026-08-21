@@ -13,4 +13,4 @@ jobs:
   codeql:
     uses: guilhermelinosp/ci-templates/.github/workflows/codeql.yml@main
     with:
-      languages: '[{"language":"actions","build-mode":"none"},{"language":"go","build-mode":"autobuild"}]'
+      languages: '[{"language":"actions","build-mode":"none"}]'
