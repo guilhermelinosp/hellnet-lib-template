@@ -1,3 +1,3 @@
 module github.com/guilhermelinosp/golang-lib-template
 
-go 1.24
+go 1.26
