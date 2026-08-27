@@ -1,0 +1,14 @@
+name: probe
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  only-gobuild:
+    uses: guilhermelinosp/ci-templates/.github/workflows/go-build.yml@main
+  only-govulncheck:
+    uses: guilhermelinosp/ci-templates/.github/workflows/govulncheck.yml@main
