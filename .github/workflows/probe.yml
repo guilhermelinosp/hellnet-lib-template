@@ -9,6 +9,6 @@ permissions:
 
 jobs:
   only-gobuild:
-    uses: guilhermelinosp/ci-templates/.github/workflows/go-build.yml@main
+    uses: guilhermelinosp/templates/.github/workflows/go-build.yml@main
   only-govulncheck:
-    uses: guilhermelinosp/ci-templates/.github/workflows/govulncheck.yml@main
+    uses: guilhermelinosp/templates/.github/workflows/govulncheck.yml@main

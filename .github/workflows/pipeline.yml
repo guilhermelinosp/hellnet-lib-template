@@ -14,13 +14,13 @@ permissions: write-all
 
 jobs:
   release:
-    uses: guilhermelinosp/ci-templates/.github/workflows/release.yml@main
+    uses: guilhermelinosp/templates/.github/workflows/release.yml@main
     secrets: inherit
 
   build:
     needs: [release]
-    uses: guilhermelinosp/ci-templates/.github/workflows/go-build.yml@main
+    uses: guilhermelinosp/templates/.github/workflows/go-build.yml@main
 
   quality:
     needs: [build]
-    uses: guilhermelinosp/ci-templates/.github/workflows/govulncheck.yml@main
+    uses: guilhermelinosp/templates/.github/workflows/govulncheck.yml@main
