@@ -26,6 +26,6 @@ jobs:
   # module integrity, vet, race tests + coverage, canonical lint, build,
   # dependency review on PRs.
   go-quality:
-    uses: guilhermelinosp/templates/.github/workflows/go-quality.yml@main
+    uses: guilhermelinosp/templates/.github/workflows/lib-quality.yml@main
     with:
       go-version-file: go.mod
