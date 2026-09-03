@@ -22,10 +22,8 @@ jobs:
   labeler:
     uses: guilhermelinosp/templates/.github/workflows/labeler.yml@main
 
-  # Single-import Go quality + security gate (see ci-templates/go-quality):
-  # module integrity, vet, race tests + coverage, canonical lint, build,
-  # dependency review on PRs.
-  go-quality:
+  quality:
+    name: quality
     uses: guilhermelinosp/templates/.github/workflows/lib-quality.yml@main
     with:
       go-version-file: go.mod
