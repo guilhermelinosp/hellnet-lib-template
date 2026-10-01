@@ -1,4 +1,4 @@
-# golang-lib-template
+# hellnet-lib-template
 
 > GitHub template for production-ready Go libraries, pre-configured with the
 > canonical Hellnet pattern: CI, linting, pre-commit hooks, dependency
