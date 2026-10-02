@@ -19,6 +19,7 @@ package golanglibtemplate
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -66,14 +67,19 @@ func (o *Options) fromEnv(base Options) {
 }
 
 // envValue resolves HELLNET_TEMPLATE_<suffix>, then the shared HELLNET_<suffix>,
-// then def. environments.Get takes a full variable name and returns def when it
-// is unset, so the chain is spelled out here.
+// then def. It reads os.Getenv directly instead of the environments getters,
+// whose signatures have changed between releases; only LoadDotEnv is used.
 func envValue(suffix, def string) string {
-	return environments.Get(envPrefix+suffix, environments.Get("HELLNET_"+suffix, def))
+	for _, name := range []string{envPrefix + suffix, "HELLNET_" + suffix} {
+		if v := os.Getenv(name); v != "" {
+			return v
+		}
+	}
+	return def
 }
 
 // envInt parses envValue as an integer; an unparseable value yields def
-// (environments.GetInt would panic instead).
+// (environments.GetInt panics instead).
 func envInt(suffix string, def int) int {
 	n, err := strconv.Atoi(strings.TrimSpace(envValue(suffix, "")))
 	if err != nil {
