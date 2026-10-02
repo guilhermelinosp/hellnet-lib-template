@@ -6,6 +6,10 @@
 
 Click **"Use this template"** to scaffold a new Go library in seconds.
 
+[![pipeline](https://github.com/guilhermelinosp/hellnet-lib-template/actions/workflows/pipeline.yml/badge.svg)](https://github.com/guilhermelinosp/hellnet-lib-template/actions/workflows/pipeline.yml)
+[![pr-check](https://github.com/guilhermelinosp/hellnet-lib-template/actions/workflows/pr-check.yml/badge.svg)](https://github.com/guilhermelinosp/hellnet-lib-template/actions/workflows/pr-check.yml)
+[![CodeQL](https://github.com/guilhermelinosp/hellnet-lib-template/actions/workflows/codeql.yml/badge.svg)](https://github.com/guilhermelinosp/hellnet-lib-template/actions/workflows/codeql.yml)
+
 ## What's included
 
 - **Canonical Hellnet API** — the seeded example demonstrates the exact pattern
@@ -45,21 +49,25 @@ Then create the `HELLNET_ACTIONS_PRIVATE_KEY` secret (the script prints the exac
 
 ## Quick start
 
-```bash
-# 1. create your repo from this template, then:
-cd <repo>
-go mod edit -module github.com/<you>/<repo>   # replace the module path
-go mod edit -module=...                       # and rename the package dir if desired
-go mod tidy
-```
-
-Rename the seeded API to your library:
+Initialise the repository first (see above); that renames the module path. Then rename the seeded API to your library:
 
 1. Rename the package and `envPrefix` in `golanglibtemplate.go`
    (e.g. `HELLNET_KAFKA_`); keep the shared `HELLNET_` fallback.
 2. Replace `Options`, `Greet` and the validation rule with your own API.
 3. Keep `DefaultOptions()`, `fromEnv`, `New`/`MustNew` and `loadEnvFiles`
    — they are the canonical contract every Hellnet lib exposes.
+
+## Configuration
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `HELLNET_TEMPLATE_NAME` / `HELLNET_NAME` | greeting target | `World` |
+| `HELLNET_TEMPLATE_REPEATS` / `HELLNET_REPEATS` | repeat count | `1` |
+| `HELLNET_TEMPLATE_VERBOSE` / `HELLNET_VERBOSE` | debug output | `false` |
+
+`.env` files are loaded automatically by the constructors (conventional
+`./.env`, plus parent-directory candidates, **dev environments only**) — no
+external loader call needed.
 
 ## Usage (canonical pattern)
 
@@ -90,32 +98,28 @@ func main() {
 }
 ```
 
-### Environment variables
+## Development
 
-| Variable | Purpose | Default |
+```bash
+go test -race ./...
+go vet ./...
+golangci-lint run ./...
+```
+
+Install the git hooks once with `lefthook install`: they run formatting, vet, tests (with and without `-race`), build, `go mod tidy`, lint, `govulncheck` and a secrets scan. Commits follow [Conventional Commits](https://www.conventionalcommits.org/).
+
+## CI/CD
+
+| Workflow | Trigger | What it does |
 |---|---|---|
-| `HELLNET_TEMPLATE_NAME` / `HELLNET_NAME` | greeting target | `World` |
-| `HELLNET_TEMPLATE_REPEATS` / `HELLNET_REPEATS` | repeat count | `1` |
-| `HELLNET_TEMPLATE_VERBOSE` / `HELLNET_VERBOSE` | debug output | `false` |
+| `pr-check` | pull request | shellcheck, merge strategy and Conventional Commits (`merge-check`), Gitleaks, labels and the lib quality gate (module integrity, vet, race tests with coverage, lint, build, dependency review). `pr-gate` aggregates them and is the required check |
+| `pipeline` | push to `main` (ignores `.github/**`) or manual | semver guard (blocks an automatic major), immutable tag + GitHub Release |
+| `codeql` | nightly or manual | static analysis (CodeQL) |
+| `security` | nightly or manual | Gitleaks and Trivy scans |
+| `auto-pr` | push to `feat/**` or `fix/**` | opens the pull request automatically |
+| `dependabot-actions-auto-merge` | Dependabot pull requests | auto-merges GitHub Actions bumps |
 
-`.env` files are loaded automatically by the constructors (conventional
-`./.env`, plus parent-directory candidates, **dev environments only**) — no
-external loader call needed.
-
-## Develop
-
-```bash
-go fmt ./...    # format
-go vet ./...    # vet
-go test ./...   # tests (add -race for the race detector)
-golangci-lint run
-```
-
-Install the git hooks once:
-
-```bash
-lefthook install
-```
+The workflows call reusable workflows from [templates](https://github.com/guilhermelinosp/templates), pinned by commit SHA. Releases need the `HELLNET_ACTIONS_PRIVATE_KEY` secret and the `HELLNET_ACTIONS_CLIENT_ID` variable (set them with `scripts/setup-repo.sh`).
 
 ## Versioning
 
@@ -123,9 +127,9 @@ Releases and version bumps are derived from [Conventional Commits].
 Hellnet libraries stay on **major v1**: a change to a public signature ships as
 a minor or patch release — never a `BREAKING CHANGE`, never a major bump.
 
-## License
+## Contributing and license
 
-[Apache 2.0](LICENSE)
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). Licensed under [Apache 2.0](LICENSE).
 
 [hellnet-lib-environments]: https://github.com/guilhermelinosp/hellnet-lib-environments
 [github.com/guilhermelinosp/templates]: https://github.com/guilhermelinosp/templates
