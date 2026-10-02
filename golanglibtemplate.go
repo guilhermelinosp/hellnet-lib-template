@@ -1,12 +1,12 @@
 // Package golanglibtemplate is a minimal, idiomatic starter for Go libraries.
 //
 // It demonstrates the canonical pattern shared by every Hellnet library
-// (hellnet-lib-environments, hellnet-lib-kafka, hellnet-lib-cache,
-// hellnet-lib-telemetry, hellnet-lib-database, hellnet-lib-api):
+// (hellnet-lib-kafka, hellnet-lib-cache, hellnet-lib-telemetry,
+// hellnet-lib-database, hellnet-lib-api):
 //
-//   - configuration via hellnet-lib-environments: every option is exposed as a
+//   - configuration from the environment: every option is exposed as a
 //     HELLNET_<LIB>_* environment variable with a shared HELLNET_* fallback,
-//     and .env files are loaded automatically (dev only, self-contained);
+//     and ./.env is loaded automatically (dev only, self-contained);
 //   - constructors without context.Context: New/MustNew and, when needed,
 //     NewFromEnv; the runtime captures one context.Background() used for
 //     internal operations, so public methods never take a ctx;
@@ -19,10 +19,11 @@ package golanglibtemplate
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
-	"github.com/guilhermelinosp/hellnet-lib-environments/environments"
+	"github.com/joho/godotenv"
 )
 
 // Version is the library version. Bump it together with a release tag.
@@ -66,14 +67,17 @@ func (o *Options) fromEnv(base Options) {
 }
 
 // envValue resolves HELLNET_TEMPLATE_<suffix>, then the shared HELLNET_<suffix>,
-// then def. environments.Get takes a full variable name and returns def when it
-// is unset, so the chain is spelled out here.
+// then def.
 func envValue(suffix, def string) string {
-	return environments.Get(envPrefix+suffix, environments.Get("HELLNET_"+suffix, def))
+	for _, name := range []string{envPrefix + suffix, "HELLNET_" + suffix} {
+		if v := os.Getenv(name); v != "" {
+			return v
+		}
+	}
+	return def
 }
 
 // envInt parses envValue as an integer; an unparseable value yields def
-// (environments.GetInt would panic instead).
 func envInt(suffix string, def int) int {
 	n, err := strconv.Atoi(strings.TrimSpace(envValue(suffix, "")))
 	if err != nil {
@@ -118,13 +122,16 @@ func withDefaults(o Options) Options {
 	return o
 }
 
-// loadEnvFiles loads .env files through hellnet-lib-environments using the
-// shared convention of the other Hellnet libs: the conventional ./.env (and
-// its parent-directory candidates) when in a dev environment. The error is
-// ignored on purpose: a missing env file is not fatal (explicit Options or
-// already-set environment variables still work).
+// loadEnvFiles loads ./.env in development environments only (HELLNET_ENVIRONMENT
+// is Development, Dev, Local, Test or Testing, case-insensitive); in any other
+// environment it does nothing. A missing file is not an error (explicit Options
+// or already-set environment variables still work), and variables already set
+// in the process win over the file.
 func loadEnvFiles() {
-	_ = environments.LoadDotEnv()
+	switch strings.ToLower(strings.TrimSpace(os.Getenv("HELLNET_ENVIRONMENT"))) {
+	case "development", "dev", "local", "test", "testing":
+		_ = godotenv.Load()
+	}
 }
 
 // LoadFromEnv loads HELLNET_TEMPLATE_* environment variables (plus a .env file

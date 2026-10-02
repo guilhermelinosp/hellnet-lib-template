@@ -15,7 +15,7 @@ Click **"Use this template"** to scaffold a new Go library in seconds.
 - **Canonical Hellnet API** — the seeded example demonstrates the exact pattern
   every Hellnet library shares (hellnet-lib-kafka, hellnet-lib-cache,
   hellnet-lib-telemetry, hellnet-lib-database, hellnet-lib-api):
-  - configuration via [hellnet-lib-environments]: every option is exposed as a
+  - configuration from the environment: every option is exposed as a
     `HELLNET_<LIB>_*` environment variable with a shared `HELLNET_*` fallback,
     and `.env` files load automatically (dev only, self-contained);
   - **constructors without `context.Context`** — `New`, `NewFromEnv`, `MustNew`;
@@ -65,9 +65,8 @@ Initialise the repository first (see above); that renames the module path. Then 
 | `HELLNET_TEMPLATE_REPEATS` / `HELLNET_REPEATS` | repeat count | `1` |
 | `HELLNET_TEMPLATE_VERBOSE` / `HELLNET_VERBOSE` | debug output | `false` |
 
-`.env` files are loaded automatically by the constructors (conventional
-`./.env`, plus parent-directory candidates, **dev environments only**) — no
-external loader call needed.
+`./.env` is loaded automatically by the constructors (**dev environments
+only**) — no external loader call needed.
 
 ## Usage (canonical pattern)
 
@@ -131,6 +130,5 @@ a minor or patch release — never a `BREAKING CHANGE`, never a major bump.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). Licensed under [Apache 2.0](LICENSE).
 
-[hellnet-lib-environments]: https://github.com/guilhermelinosp/hellnet-lib-environments
 [github.com/guilhermelinosp/templates]: https://github.com/guilhermelinosp/templates
 [Conventional Commits]: https://www.conventionalcommits.org/
