@@ -19,6 +19,7 @@ package golanglibtemplate
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/guilhermelinosp/hellnet-lib-environments/environments"
@@ -59,9 +60,39 @@ func DefaultOptions() Options {
 // fromEnv overlays HELLNET_TEMPLATE_* environment variables on top of base,
 // falling back to the shared HELLNET_* prefix. Mirrors the other Hellnet libs.
 func (o *Options) fromEnv(base Options) {
-	o.Name = environments.GetString(envPrefix, "HELLNET_", "NAME", base.Name)
-	o.Repeats = environments.GetInt(envPrefix, "HELLNET_", "REPEATS", base.Repeats)
-	o.Verbose = environments.GetBool(envPrefix, "HELLNET_", "VERBOSE", base.Verbose)
+	o.Name = envValue("NAME", base.Name)
+	o.Repeats = envInt("REPEATS", base.Repeats)
+	o.Verbose = envBool("VERBOSE", base.Verbose)
+}
+
+// envValue resolves HELLNET_TEMPLATE_<suffix>, then the shared HELLNET_<suffix>,
+// then def. environments.Get takes a full variable name and returns def when it
+// is unset, so the chain is spelled out here.
+func envValue(suffix, def string) string {
+	return environments.Get(envPrefix+suffix, environments.Get("HELLNET_"+suffix, def))
+}
+
+// envInt parses envValue as an integer; an unparseable value yields def
+// (environments.GetInt would panic instead).
+func envInt(suffix string, def int) int {
+	n, err := strconv.Atoi(strings.TrimSpace(envValue(suffix, "")))
+	if err != nil {
+		return def
+	}
+	return n
+}
+
+// envBool parses envValue as a boolean (true/1/yes/on and false/0/no/off, any
+// case); anything else yields def.
+func envBool(suffix string, def bool) bool {
+	switch strings.ToLower(strings.TrimSpace(envValue(suffix, ""))) {
+	case "true", "1", "yes", "on":
+		return true
+	case "false", "0", "no", "off":
+		return false
+	default:
+		return def
+	}
 }
 
 // validate reports missing or invalid options as a single error. Replace it
