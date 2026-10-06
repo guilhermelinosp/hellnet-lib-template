@@ -5,7 +5,7 @@
 // hellnet-lib-database, hellnet-lib-api):
 //
 //   - configuration from the environment: every option is exposed as a
-//     HELLNET_<LIB>_* environment variable with a shared HELLNET_* fallback,
+//     <LIB>_* environment variable (no HELLNET_ prefix, like hellnet-lib-cache),
 //     and ./.env is loaded automatically (dev only, self-contained);
 //   - constructors without context.Context: New/MustNew and, when needed,
 //     NewFromEnv; the runtime captures one context.Background() used for
@@ -29,16 +29,17 @@ import (
 // Version is the library version. Bump it together with a release tag.
 const Version = "0.1.0"
 
-// envPrefix is the prefix of every HELLNET_<LIB>_* variable. Rename it when
-// you scaffold a new library (e.g. HELLNET_KAFKA_, HELLNET_CACHE_,
-// HELLNET_DATABASE_). Leave the shared "HELLNET_" fallback prefix intact.
-const envPrefix = "HELLNET_TEMPLATE_"
+// envPrefix is the prefix of every <LIB>_* variable. Rename it when you
+// scaffold a new library (e.g. KAFKA_, CACHE_, DATABASE_). Library variables do
+// not use the HELLNET_ prefix; only the application-level HELLNET_ENVIRONMENT
+// (which selects whether a .env file is loaded) keeps it.
+const envPrefix = "TEMPLATE_"
 
 // ErrInvalidRepeats is returned when Repeats is smaller than 1.
 var ErrInvalidRepeats = errors.New("repeats must be >= 1")
 
 // Options configures the Client. Every field is exposed as a
-// HELLNET_TEMPLATE_* environment variable (with HELLNET_* fallback) via
+// TEMPLATE_* environment variable via
 // LoadFromEnv/NewFromEnv, or can be set explicitly (explicit options win).
 type Options struct {
 	// Name is the greeting target used by Greet when name is empty.
@@ -58,21 +59,18 @@ func DefaultOptions() Options {
 	}
 }
 
-// fromEnv overlays HELLNET_TEMPLATE_* environment variables on top of base,
-// falling back to the shared HELLNET_* prefix. Mirrors the other Hellnet libs.
+// fromEnv overlays TEMPLATE_* environment variables on top of base.
+// Mirrors the other Hellnet libs.
 func (o *Options) fromEnv(base Options) {
 	o.Name = envValue("NAME", base.Name)
 	o.Repeats = envInt("REPEATS", base.Repeats)
 	o.Verbose = envBool("VERBOSE", base.Verbose)
 }
 
-// envValue resolves HELLNET_TEMPLATE_<suffix>, then the shared HELLNET_<suffix>,
-// then def.
+// envValue resolves TEMPLATE_<suffix>, then def.
 func envValue(suffix, def string) string {
-	for _, name := range []string{envPrefix + suffix, "HELLNET_" + suffix} {
-		if v := os.Getenv(name); v != "" {
-			return v
-		}
+	if v := os.Getenv(envPrefix + suffix); v != "" {
+		return v
 	}
 	return def
 }
@@ -134,7 +132,7 @@ func loadEnvFiles() {
 	}
 }
 
-// LoadFromEnv loads HELLNET_TEMPLATE_* environment variables (plus a .env file
+// LoadFromEnv loads TEMPLATE_* environment variables (plus a .env file
 // via loadEnvFiles) into Options, starting from DefaultOptions as the fallback
 // for any unset value. It is fully self-contained: the caller does not need to
 // load env files beforehand.
@@ -152,7 +150,7 @@ type Client struct {
 }
 
 // New creates a Client. With no options it behaves like NewFromEnv
-// (env-first: HELLNET_TEMPLATE_* + defaults); with explicit options they win
+// (env-first: TEMPLATE_* + defaults); with explicit options they win
 // over the environment. A Background context is captured once here and used
 // for internal operations — this is why no public method takes a ctx.
 func New(opts ...Options) (*Client, error) {
@@ -168,7 +166,7 @@ func New(opts ...Options) (*Client, error) {
 	return &Client{opts: o}, nil
 }
 
-// NewFromEnv creates a Client using HELLNET_TEMPLATE_* environment variables
+// NewFromEnv creates a Client using TEMPLATE_* environment variables
 // as the base (with defaults as fallback) and lets explicit non-zero options
 // override individual fields. Prefer it when the caller wants env-first
 // behavior plus targeted overrides.
