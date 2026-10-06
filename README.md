@@ -16,7 +16,7 @@ Click **"Use this template"** to scaffold a new Go library in seconds.
   every Hellnet library shares (hellnet-lib-kafka, hellnet-lib-cache,
   hellnet-lib-telemetry, hellnet-lib-database, hellnet-lib-api):
   - configuration from the environment: every option is exposed as a
-    `HELLNET_<LIB>_*` environment variable with a shared `HELLNET_*` fallback,
+    `<LIB>_*` environment variable (no `HELLNET_` prefix),
     and `.env` files load automatically (dev only, self-contained);
   - **constructors without `context.Context`** — `New`, `NewFromEnv`, `MustNew`;
     the runtime captures one `context.Background()` internally, so no public
@@ -52,7 +52,7 @@ Then create the `HELLNET_ACTIONS_PRIVATE_KEY` secret (the script prints the exac
 Initialise the repository first (see above); that renames the module path. Then rename the seeded API to your library:
 
 1. Rename the package and `envPrefix` in `golanglibtemplate.go`
-   (e.g. `HELLNET_KAFKA_`); keep the shared `HELLNET_` fallback.
+   (e.g. `KAFKA_`); there is no shared `HELLNET_` fallback.
 2. Replace `Options`, `Greet` and the validation rule with your own API.
 3. Keep `DefaultOptions()`, `fromEnv`, `New`/`MustNew` and `loadEnvFiles`
    — they are the canonical contract every Hellnet lib exposes.
@@ -61,9 +61,9 @@ Initialise the repository first (see above); that renames the module path. Then 
 
 | Variable | Purpose | Default |
 |---|---|---|
-| `HELLNET_TEMPLATE_NAME` / `HELLNET_NAME` | greeting target | `World` |
-| `HELLNET_TEMPLATE_REPEATS` / `HELLNET_REPEATS` | repeat count | `1` |
-| `HELLNET_TEMPLATE_VERBOSE` / `HELLNET_VERBOSE` | debug output | `false` |
+| `TEMPLATE_NAME` | greeting target | `World` |
+| `TEMPLATE_REPEATS` | repeat count | `1` |
+| `TEMPLATE_VERBOSE` | debug output | `false` |
 
 `./.env` is loaded automatically by the constructors (**dev environments
 only**) — no external loader call needed.
@@ -80,7 +80,7 @@ import (
 )
 
 func main() {
-	// env-first: HELLNET_<LIB>_* (or shared HELLNET_*), .env loaded for you
+	// env-first: <LIB>_* variables (e.g. TEMPLATE_NAME), .env loaded for you
 	c, err := <repo>.New()
 	if err != nil {
 		panic(err)

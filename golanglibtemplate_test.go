@@ -54,9 +54,9 @@ func TestGreet(t *testing.T) {
 
 func TestNewLoadsFromEnv(t *testing.T) {
 	t.Setenv("HELLNET_ENVIRONMENT", "test")
-	t.Setenv("HELLNET_TEMPLATE_NAME", "Env")
-	t.Setenv("HELLNET_TEMPLATE_REPEATS", "2")
-	t.Setenv("HELLNET_TEMPLATE_VERBOSE", "true")
+	t.Setenv("TEMPLATE_NAME", "Env")
+	t.Setenv("TEMPLATE_REPEATS", "2")
+	t.Setenv("TEMPLATE_VERBOSE", "true")
 
 	c, err := New()
 	if err != nil {
@@ -72,10 +72,11 @@ func TestNewLoadsFromEnv(t *testing.T) {
 	}
 }
 
-func TestNewFallsBackToSharedPrefix(t *testing.T) {
+func TestNewIgnoresLegacyHellnetPrefix(t *testing.T) {
 	t.Setenv("HELLNET_ENVIRONMENT", "test")
-	t.Setenv("HELLNET_NAME", "Shared")
-	t.Setenv("HELLNET_TEMPLATE_NAME", "")
+	t.Setenv("HELLNET_NAME", "Legacy")
+	t.Setenv("HELLNET_TEMPLATE_NAME", "Legacy")
+	t.Setenv("TEMPLATE_NAME", "")
 
 	c, err := New()
 	if err != nil {
@@ -85,14 +86,14 @@ func TestNewFallsBackToSharedPrefix(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Greet() unexpected err = %v", err)
 	}
-	if want := "Hello, Shared!"; got != want {
-		t.Fatalf("Greet() = %q, want %q", got, want)
+	if want := "Hello, World!"; got != want {
+		t.Fatalf("Greet() = %q, want %q (HELLNET_* names must be ignored)", got, want)
 	}
 }
 
 func TestNewPrefersExplicitOptions(t *testing.T) {
 	t.Setenv("HELLNET_ENVIRONMENT", "test")
-	t.Setenv("HELLNET_TEMPLATE_NAME", "Env")
+	t.Setenv("TEMPLATE_NAME", "Env")
 
 	c, err := New(Options{Name: "Explicit"})
 	if err != nil {
@@ -109,8 +110,8 @@ func TestNewPrefersExplicitOptions(t *testing.T) {
 
 func TestNewFromEnvOverridesWithOptions(t *testing.T) {
 	t.Setenv("HELLNET_ENVIRONMENT", "test")
-	t.Setenv("HELLNET_TEMPLATE_NAME", "Env")
-	t.Setenv("HELLNET_TEMPLATE_REPEATS", "1")
+	t.Setenv("TEMPLATE_NAME", "Env")
+	t.Setenv("TEMPLATE_REPEATS", "1")
 
 	c, err := NewFromEnv(Options{Repeats: 2})
 	if err != nil {
@@ -148,11 +149,11 @@ func TestLoadFromEnvLoadsDotEnv(t *testing.T) {
 	t.Setenv("HELLNET_ENVIRONMENT", "test")
 	dir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte(
-		"HELLNET_TEMPLATE_NAME=fromdotenv\n"), 0o600); err != nil {
+		"TEMPLATE_NAME=fromdotenv\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	for _, key := range []string{
-		"HELLNET_TEMPLATE_NAME", "HELLNET_NAME",
+		"TEMPLATE_NAME",
 	} {
 		t.Setenv(key, "")
 		if err := os.Unsetenv(key); err != nil {
@@ -160,7 +161,7 @@ func TestLoadFromEnvLoadsDotEnv(t *testing.T) {
 		}
 	}
 	t.Chdir(dir)
-	defer os.Unsetenv("HELLNET_TEMPLATE_NAME")
+	defer os.Unsetenv("TEMPLATE_NAME")
 
 	o := LoadFromEnv()
 	if o.Name != "fromdotenv" {
